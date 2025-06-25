@@ -5,9 +5,11 @@ import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaLinkedin, FaGithub, FaTelegram, 
 import { Toaster, toast } from 'react-hot-toast';
 
 export default function Contact() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: ''
+  });
   const [files, setFiles] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef(null);
@@ -59,9 +61,17 @@ export default function Contact() {
     {
       icon: <FaTelegram className="text-blue-400" />,
       name: "Telegram",
-      url: "https://t.me/yourusername"
+      url: "https://t.me/Mis404"
     }
   ];
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
 
   const handleFileChange = (e) => {
     const newFiles = Array.from(e.target.files);
@@ -69,7 +79,17 @@ export default function Contact() {
       toast.error('You can upload a maximum of 5 files');
       return;
     }
-    setFiles([...files, ...newFiles]);
+    
+    // Validate file types and size (e.g., 5MB max per file)
+    const validFiles = newFiles.filter(file => {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error(`File ${file.name} is too large (max 5MB)`);
+        return false;
+      }
+      return true;
+    });
+    
+    setFiles([...files, ...validFiles]);
   };
 
   const removeFile = (index) => {
@@ -78,23 +98,46 @@ export default function Contact() {
     setFiles(newFiles);
   };
 
-  const handleSubmit = (e) => {
+  const validateForm = () => {
+    if (!formData.name.trim()) {
+      toast.error('Please enter your name');
+      return false;
+    }
+    
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      toast.error('Please enter a valid email address');
+      return false;
+    }
+    
+    if (!formData.message.trim()) {
+      toast.error('Please enter your message');
+      return false;
+    }
+    
+    return true;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!validateForm()) return;
+    
     setIsSubmitting(true);
 
     try {
-      const subject = `New message from ${name}`;
-      const body = `Name: ${name}%0D%0AEmail: ${email}%0D%0A%0D%0AMessage:%0D%0A${message}`;
+      // Create mailto link with form data
+      const subject = `New message from ${formData.name}`;
+      const body = `Name: ${formData.name}%0D%0AEmail: ${formData.email}%0D%0A%0D%0AMessage:%0D%0A${formData.message}`;
       
-      // Create mailto link
       const mailtoLink = `mailto:wedajiemisgan8@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       
       // Open default email client
       window.location.href = mailtoLink;
 
+      // Show success message
       toast.success(
         <div className="flex flex-col">
-          <span className="font-bold text-green-700">Ready to send your message!</span>
+          <span className="font-bold text-green-700">Message ready to send!</span>
           <span className="text-sm">Your email client should open automatically</span>
         </div>,
         {
@@ -116,9 +159,11 @@ export default function Contact() {
       );
 
       // Reset form
-      setName('');
-      setEmail('');
-      setMessage('');
+      setFormData({
+        name: '',
+        email: '',
+        message: ''
+      });
       setFiles([]);
     } catch (error) {
       console.error('Error:', error);
@@ -210,26 +255,28 @@ export default function Contact() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                    Your Name
+                    Your Name *
                   </label>
                   <input
                     type="text"
                     id="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                     required
                   />
                 </div>
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                    Your Email
+                    Your Email *
                   </label>
                   <input
                     type="email"
                     id="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                     required
                   />
@@ -237,20 +284,21 @@ export default function Contact() {
               </div>
               <div>
                 <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
-                  Message
+                  Message *
                 </label>
                 <textarea
                   id="message"
+                  name="message"
                   rows="5"
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
+                  value={formData.message}
+                  onChange={handleInputChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                   required
                 ></textarea>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Attachments (max 5)
+                  Attachments (max 5, 5MB each)
                 </label>
                 <div className="flex items-center space-x-4">
                   <button
@@ -267,6 +315,7 @@ export default function Contact() {
                     onChange={handleFileChange}
                     className="hidden"
                     multiple
+                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt"
                   />
                   <span className="text-sm text-gray-500">
                     {files.length > 0 ? `${files.length} file(s) selected` : 'No files selected'}
@@ -276,11 +325,14 @@ export default function Contact() {
                   <div className="mt-3 space-y-2">
                     {files.map((file, index) => (
                       <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
-                        <span className="text-sm truncate max-w-xs">{file.name}</span>
+                        <span className="text-sm truncate max-w-xs" title={file.name}>
+                          {file.name} ({(file.size / 1024 / 1024).toFixed(2)}MB)
+                        </span>
                         <button
                           type="button"
                           onClick={() => removeFile(index)}
                           className="text-gray-500 hover:text-red-500"
+                          aria-label={`Remove ${file.name}`}
                         >
                           <FaTimes />
                         </button>
@@ -297,7 +349,7 @@ export default function Contact() {
                   disabled={isSubmitting}
                   className={`w-full py-3 px-6 rounded-lg font-medium text-white ${isSubmitting ? 'bg-indigo-400' : 'bg-indigo-600 hover:bg-indigo-700'} transition-colors`}
                 >
-                  {isSubmitting ? 'Opening Email...' : 'Send Message'}
+                  {isSubmitting ? 'Preparing message...' : 'Send Message'}
                 </motion.button>
               </div>
             </form>
@@ -334,7 +386,7 @@ export default function Contact() {
               I'm currently available for freelance work and full-time opportunities. If you have a project that needs creative solutions, let's talk about how I can help.
             </p>
             <motion.a
-              href="mailto:wedajiemisgan8@gmail.com"
+              href="mailto:wedajiemisgan8@gmail.com?subject=Project%20Inquiry"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="inline-block px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all font-medium"

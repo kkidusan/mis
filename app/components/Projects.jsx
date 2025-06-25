@@ -11,7 +11,7 @@ const projects = [
     icon: <FaTicketAlt className="text-indigo-500" />,
     color: "from-indigo-50 to-purple-50",
     border: "border-indigo-100",
-    githubUrl: "https://github.com/kkidusan/cinema-ticketing"
+    githubUrl: "https://github.com/kkidusan/cinema-ticket"
   },
   {
     title: "Social Media Platform",
@@ -21,7 +21,7 @@ const projects = [
     icon: <FaUsers className="text-blue-500" />,
     color: "from-blue-50 to-cyan-50",
     border: "border-blue-100",
-    githubUrl: "https://github.com/kkidusan/social-media-app"
+    githubUrl: "https://github.com/kkidusan/social-Media"
   }
 ];
 

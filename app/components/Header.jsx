@@ -1,7 +1,7 @@
 "use client"
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, useAnimation, useInView } from 'framer-motion';
-import { FaUser, FaCode, FaProjectDiagram, FaEnvelope } from 'react-icons/fa';
+import { FaUser, FaCode, FaProjectDiagram, FaEnvelope, FaBars, FaTimes } from 'react-icons/fa';
 
 // Predefined positions and sizes for background elements
 const backgroundElements = Array.from({ length: 10 }, (_, i) => ({
@@ -13,7 +13,35 @@ const backgroundElements = Array.from({ length: 10 }, (_, i) => ({
   opacity: [0.05, 0.1, 0.15, 0.2, 0.1, 0.05, 0.15, 0.2, 0.1, 0.15][i % 10],
 }));
 
+const navItems = [
+  { 
+    id: 'about', 
+    icon: <FaUser className="text-lg md:text-xl" />, 
+    text: 'About Me',
+    color: 'from-cyan-500 to-cyan-700'
+  },
+  { 
+    id: 'skills', 
+    icon: <FaCode className="text-lg md:text-xl" />, 
+    text: 'My Skills',
+    color: 'from-emerald-500 to-emerald-700'
+  },
+  { 
+    id: 'projects', 
+    icon: <FaProjectDiagram className="text-lg md:text-xl" />, 
+    text: 'Projects',
+    color: 'from-purple-500 to-purple-700'
+  },
+  { 
+    id: 'contact', 
+    icon: <FaEnvelope className="text-lg md:text-xl" />, 
+    text: 'Contact',
+    color: 'from-pink-500 to-pink-700'
+  }
+];
+
 export default function Header() {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const controls = useAnimation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
@@ -53,14 +81,14 @@ export default function Header() {
     visible: (i) => ({
       opacity: 1,
       y: 0,
-      rotate: [0, 360], // Continuous 360-degree rotation
+      rotate: [0, 360],
       transition: {
         opacity: { delay: i * 0.1, duration: 0.4, ease: "easeOut" },
         y: { delay: i * 0.1, duration: 0.4, ease: "easeOut" },
         rotate: {
           repeat: Infinity,
           repeatType: "loop",
-          duration: 2.5 + i * 0.15, // Slightly faster rotation for modern feel
+          duration: 2.5 + i * 0.15,
           ease: "linear"
         }
       }
@@ -98,7 +126,7 @@ export default function Header() {
   const name = "Misgan Wedajie".split("");
 
   return (
-    <header className="fixed top-0 left-0 w-full z-50 bg-gradient-to-br from-gray-900 via-indigo-900 to-purple-900 shadow-2xl py-6">
+    <header className="fixed top-0 left-0 w-full z-50 bg-gradient-to-br from-gray-900 via-indigo-900 to-purple-900 shadow-2xl py-4 md:py-6">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         {backgroundElements.map((element) => (
@@ -126,7 +154,7 @@ export default function Header() {
         ))}
       </div>
 
-      <div className="container mx-auto px-6 relative z-10">
+      <div className="container mx-auto px-4 sm:px-6 relative z-10">
         <motion.div
           ref={ref}
           initial="hidden"
@@ -134,85 +162,76 @@ export default function Header() {
           variants={containerVariants}
           className="flex flex-col md:flex-row justify-between items-center"
         >
-          <motion.div variants={itemVariants} className="text-center md:text-left mb-6 md:mb-0">
-            <motion.h1 
-              className="text-4xl md:text-6xl font-bold text-white mb-3 tracking-tight"
-              whileHover={{ scale: 1.03, transition: { duration: 0.3 } }}
-            >
-              <span className="relative inline-flex">
-                {name.map((char, i) => (
-                  <motion.span
-                    key={i}
-                    custom={i}
-                    variants={textVariants}
-                    initial="hidden"
-                    animate="visible"
-                    className="inline-block font-extrabold"
+          <div className="w-full md:w-auto flex justify-between items-center">
+            <motion.div variants={itemVariants} className="text-center md:text-left mb-0 md:mb-0">
+              <motion.h1 
+                className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-2 md:mb-3 tracking-tight"
+                whileHover={{ scale: 1.03, transition: { duration: 0.3 } }}
+              >
+                <span className="relative inline-flex">
+                  {name.map((char, i) => (
+                    <motion.span
+                      key={i}
+                      custom={i}
+                      variants={textVariants}
+                      initial="hidden"
+                      animate="visible"
+                      className="inline-block font-extrabold"
+                      style={{ 
+                        background: "linear-gradient(90deg, #22d3ee, #10b981)",
+                        WebkitBackgroundClip: "text",
+                        backgroundClip: "text",
+                        color: "transparent",
+                        textShadow: "0 0 5px rgba(255, 255, 255, 0.3)"
+                      }}
+                    >
+                      {char === " " ? "\u00A0" : char}
+                    </motion.span>
+                  ))}
+                  <motion.span 
+                    variants={glowVariants} 
+                    animate="visible" 
+                    className="absolute inset-0 -z-10"
                     style={{ 
-                      background: "linear-gradient(90deg, #22d3ee, #10b981)",
-                      WebkitBackgroundClip: "text",
-                      backgroundClip: "text",
-                      color: "transparent",
-                      textShadow: "0 0 5px rgba(255, 255, 255, 0.3)"
+                      background: "inherit",
+                      filter: "blur(20px)",
+                      opacity: 0.5
                     }}
-                  >
-                    {char === " " ? "\u00A0" : char}
-                  </motion.span>
-                ))}
-                <motion.span 
-                  variants={glowVariants} 
-                  animate="visible" 
-                  className="absolute inset-0 -z-10"
-                  style={{ 
-                    background: "inherit",
-                    filter: "blur(20px)",
-                    opacity: 0.5
-                  }}
-                />
-              </span>
-            </motion.h1>
-            <motion.p 
-              className="text-lg md:text-xl text-gray-200 font-medium flex flex-wrap justify-center md:justify-start gap-3"
-              variants={itemVariants}
-            >
-              <span className="flex items-center">
-                <FaCode className="mr-2 text-cyan-400" /> Software Developer
-              </span>
-              <span className="hidden md:inline text-gray-300">|</span>
-              <span className="flex items-center">
-                <FaUser className="mr-2 text-emerald-400" /> Computer Science Graduate
-              </span>
-            </motion.p>
-          </motion.div>
+                  />
+                </span>
+              </motion.h1>
+              <motion.p 
+                className="text-base sm:text-lg md:text-xl text-gray-200 font-medium flex flex-wrap justify-center md:justify-start gap-2 md:gap-3"
+                variants={itemVariants}
+              >
+                <span className="flex items-center">
+                  <FaCode className="mr-1 md:mr-2 text-cyan-400" /> Software Developer
+                </span>
+                <span className="hidden md:inline text-gray-300">|</span>
+                <span className="hidden md:flex items-center">
+                  <FaUser className="mr-1 md:mr-2 text-emerald-400" /> Computer Science Graduate
+                </span>
+              </motion.p>
+            </motion.div>
 
-          <motion.nav variants={itemVariants} className="mt-6 md:mt-0">
+            {/* Mobile menu button */}
+            <motion.button
+              variants={itemVariants}
+              className="md:hidden p-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              whileTap={{ scale: 0.9 }}
+            >
+              {isMobileMenuOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
+            </motion.button>
+          </div>
+
+          {/* Desktop Navigation */}
+          <motion.nav 
+            variants={itemVariants} 
+            className="hidden md:block mt-0 md:mt-0"
+          >
             <ul className="flex flex-wrap justify-center gap-4 md:gap-6">
-              {[
-                { 
-                  id: 'about', 
-                  icon: <FaUser className="text-lg md:text-xl" />, 
-                  text: 'About Me',
-                  color: 'from-cyan-500 to-cyan-700'
-                },
-                { 
-                  id: 'skills', 
-                  icon: <FaCode className="text-lg md:text-xl" />, 
-                  text: 'My Skills',
-                  color: 'from-emerald-500 to-emerald-700'
-                },
-                { 
-                  id: 'projects', 
-                  icon: <FaProjectDiagram className="text-lg md:text-xl" />, 
-                  text: 'Projects',
-                  color: 'from-purple-500 to-purple-700'
-                },
-                { 
-                  id: 'contact', 
-                  icon: <FaEnvelope className="text-lg md:text-xl" />, 
-                  text: 'Contact',
-                  color: 'from-pink-500 to-pink-700'
-                }
-              ].map((item) => (
+              {navItems.map((item) => (
                 <motion.li 
                   key={item.id}
                   whileHover={{ 
@@ -247,6 +266,47 @@ export default function Header() {
             </ul> 
           </motion.nav>
         </motion.div>
+
+        {/* Mobile Navigation */}
+        {isMobileMenuOpen && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+            className="md:hidden mt-4"
+          >
+            <ul className="flex flex-col gap-3">
+              {navItems.map((item) => (
+                <motion.li 
+                  key={item.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <a 
+                    href={`#${item.id}`} 
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`
+                      flex items-center px-4 py-3 rounded-lg 
+                      bg-gradient-to-r ${item.color}
+                      text-white shadow-md
+                      transition-all duration-200
+                    `}
+                  >
+                    <span className="mr-3">
+                      {item.icon}
+                    </span>
+                    <span className="font-medium">
+                      {item.text}
+                    </span>
+                  </a>
+                </motion.li>
+              ))}
+            </ul>
+          </motion.div>
+        )}
       </div>
     </header>
   );
